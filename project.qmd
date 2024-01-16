@@ -1,0 +1,36 @@
+---
+title: "US Polling Places 2012-2020"
+format: pdf
+editor: visual
+---
+
+## Libraries/Packages
+
+```{r}
+#| label: load-pkg-data
+#| echo: false
+#| message: false
+library(knitr) 
+library(tidyverse)
+tuesdata <- tidytuesdayR::tt_load(2024, week = 3)
+
+```
+
+```{r}
+polling_places <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-16/polling_places.csv')
+
+```
+
+## EDA
+
+```{r}
+#Creating a Year Variable
+polling_places <- polling_places %>% 
+  mutate(year = substring(election_date, 0, 4))
+```
+
+```{r}
+ggplot(data = polling_places, aes(x = year))+
+  geom_bar() +
+  labs()
+```
