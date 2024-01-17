@@ -12,11 +12,14 @@ editor: visual
 #| message: false
 library(knitr) 
 library(tidyverse)
-tuesdata <- tidytuesdayR::tt_load(2024, week = 3)
+library(patchwork)
 
 ```
 
 ```{r}
+#| label: load-data
+#| echo: false
+#| message: false
 polling_places <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-01-16/polling_places.csv')
 
 ```
@@ -24,13 +27,92 @@ polling_places <- readr::read_csv('https://raw.githubusercontent.com/rfordatasci
 ## EDA
 
 ```{r}
-#Creating a Year Variable
-polling_places <- polling_places %>% 
+#| label: data-cleaning
+glimpse(polling_places)
+polling_places <- polling_places %>%
   mutate(year = substring(election_date, 0, 4))
 ```
 
 ```{r}
-ggplot(data = polling_places, aes(x = year))+
+#| label: visualization-by-state
+ggplot(data = polling_places, aes(x = factor(1), fill = state)) +
   geom_bar() +
-  labs()
+  coord_polar("y") +
+  labs(x = "",
+       title = "Pie Chart",
+       subtitle = "of collection state")
+```
+
+While colorful, there's not much to be gleamed from this chart.
+
+```{r}
+#| label: visualization-by-year-and-source
+p1 <- ggplot(data = polling_places, aes(x = factor(1), fill = year)) +
+  geom_bar() +
+  coord_polar("y") +
+  labs(x = "",
+       title = "Distribution of Polling Places By Year")
+
+p2 <- ggplot(data = polling_places, aes(x = factor(1), fill = source)) +
+  geom_bar() +
+  coord_polar("y") +
+  labs(x = "",
+       title = "Collection Source of Polling Places")
+
+p1+p2
+```
+
+Looks like the distribution of year is very even, about the same number of votes collected from each year.
+
+The distribution of source on the other hand, is very dominantly ORR
+
+```{r}
+#| label: visualization-source+year
+
+ggplot(data = polling_places, aes(x = year, fill = source)) +
+  geom_bar() +
+  labs(title = "Distribution of Source By Year",
+       subtitle = "for polling place data"
+  )
+```
+
+It looks like the distribution of source by year is mostly the same until 2020 where the distribution of website increased and scraper was introduced. ORR remains the dominant source, but the distribution of the others changed dramatically.
+
+```{r}
+#| label: visualization-location_type+source
+ggplot(data = polling_places, aes(x = reorder(location_type, location_type, length), fill = source)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1, vjust = 1))
+  
+```
+
+It looks like almost half of the location types aren't classified so this doesn't seem like a variable of great interest
+
+## Deeper Analysis
+
+```{r}
+#| label: visualization-location_type+source
+b1 <- ggplot(data = filter(polling_places, state == "NC"), aes(x = year)) +
+  geom_bar() +
+  labs(title = "Votes in North Carolina",
+       subtitle = "By collection year")
+b1
+
+b2 <- layer_data(b1, 1)
+b2
+
+uniquelist <- unique(polling_places$state) |> tibble() 
+
+names(uniquelist)[1] <- "States"
+
+mutate(uniquelist, total2020 = as.numeric(count(filter(polling_places, year == "2020"))))
+
+
+count(filter(polling_places, state == "NC", year == "2020")) - count(filter(polling_places, state == "NC", year == "2012"))
+
+
+
+ggplot(data = filter(polling_places, year == "2020"), aes(x = state)) +
+  geom_bar()
+
 ```
