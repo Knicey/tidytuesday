@@ -13,7 +13,7 @@ editor: visual
 library(knitr) 
 library(tidyverse)
 library(patchwork)
-
+library(dplyr)
 ```
 
 ```{r}
@@ -59,7 +59,8 @@ p2 <- ggplot(data = polling_places, aes(x = factor(1), fill = source)) +
   labs(x = "",
        title = "Collection Source of Polling Places")
 
-p1+p2
+p1
+p2
 ```
 
 Looks like the distribution of year is very even, about the same number of votes collected from each year.
@@ -98,21 +99,19 @@ b1 <- ggplot(data = filter(polling_places, state == "NC"), aes(x = year)) +
        subtitle = "By collection year")
 b1
 
-b2 <- layer_data(b1, 1)
-b2
+freq <- table(polling_places$state, polling_places$year)
+b2 <- tibble(freq)
+str(b2)
 
-uniquelist <- unique(polling_places$state) |> tibble() 
-
-names(uniquelist)[1] <- "States"
-
-mutate(uniquelist, total2020 = as.numeric(count(filter(polling_places, year == "2020"))))
-
-
-count(filter(polling_places, state == "NC", year == "2020")) - count(filter(polling_places, state == "NC", year == "2012"))
-
+head(b2, 2)
 
 
 ggplot(data = filter(polling_places, year == "2020"), aes(x = state)) +
   geom_bar()
 
+```
+
+```{r}
+ggplot(data = filter(polling_places, year == "2020"), aes(x = state)) +
+  geom_bar()
 ```
