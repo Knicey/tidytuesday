@@ -1,0 +1,45 @@
+---
+title: "Educational attainment of young people in English towns"
+format: pdf
+editor: visual
+---
+
+## Libraries/Packages
+
+```{r}
+#| label: load-pkg-data
+#| echo: false
+#| message: false
+library(knitr) 
+library(tidyverse)
+library(patchwork)
+library(dplyr)
+```
+
+```{r}
+#| label: load-data
+#| echo: false
+#| message: false
+tuesdata <- tidytuesdayR::tt_load(2024, week = 4)
+english_education <- tuesdata$english_education
+```
+
+## EDA
+
+```{r}
+#| label: data-cleaning
+glimpse(english_education)
+```
+
+```{r}
+#| label: visualization-eda
+ggplot(data = english_education, aes(x = coastal)) +
+  geom_bar() 
+```
+
+## Deeper Analysis
+
+```{r}
+#| label: visualization-adv
+
+```
